@@ -291,13 +291,21 @@ RUN for dir in \
       /var/lib/shared/vfs-layers/layers.lock \
       /var/run/nginx.pid; \
     do touch $file ; chmod g+rw $file ; done && \
-    echo "\setenv PAGER 'less -SXF'" > /var/lib/awx/.psqlrc
+    echo "\setenv PAGER 'less -SXF'" > /var/lib/awx/.psqlrc \
+    for file in \
+        /entrypoint.sh \
+        /usr/bin/launch_awx.sh \
+        /start_tests.sh \
+        /usr/bin/bootstrap_development.sh \
+    do chmod 755 $file ; done && \
+
 {% endif %}
 
 {% if not build_dev|bool %}
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log
 {% endif %}
+
 
 ENV HOME="/var/lib/awx"
 ENV PATH="/usr/pgsql-12/bin:${PATH}"

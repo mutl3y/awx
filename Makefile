@@ -623,6 +623,20 @@ docker-compose-cluster-elk: awx/projects docker-compose-sources
 docker-compose-container-group:
 	MINIKUBE_CONTAINER_GROUP=true $(MAKE) docker-compose
 
+.PHONY: docker-compose-buildx
+## Build awx_devel image for podman compose development environment
+podman-compose-build: Dockerfile.dev
+	DOCKER_BUILDKIT=1 podman build -f Dockerfile.dev -t $(DEVEL_IMAGE_NAME) .
+
+podman-compose: awx/projects docker-compose-sources
+	ansible-galaxy install --ignore-certs -r tools/docker-compose/ansible/requirements.yml;
+	ansible-playbook -i tools/docker-compose/inventory tools/docker-compose/ansible/initialize_containers.yml \
+	    -e enable_vault=$(VAULT) \
+	    -e vault_tls=$(VAULT_TLS) \
+	    -e enable_ldap=$(LDAP);
+	$(DOCKER_COMPOSE) --project-name awx_dev -f tools/docker-compose/_sources/podman-compose.yml $(COMPOSE_OPTS) up $(COMPOSE_UP_OPTS) --remove-orphans
+
+
 clean-elk:
 	docker stop tools_kibana_1
 	docker stop tools_logstash_1

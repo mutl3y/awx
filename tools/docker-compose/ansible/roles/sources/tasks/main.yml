@@ -111,6 +111,12 @@
     dest: "{{ sources_dest }}/{{ compose_name }}"
     mode: '0600'
 
+- name: Render Podman-Compose
+  template:
+    src: podman-compose.yml.j2
+    dest: "{{ sources_dest }}/podman-compose.yml"
+    mode: '0600'
+
 - name: Render Receptor Config(s) for Control Plane
   template:
     src: "receptor-awx.conf.j2"
